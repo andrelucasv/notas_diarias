@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:notas_diarias/helper/anotacao_helper.dart';
+import 'package:notas_diarias/model/anotacao.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -11,6 +13,7 @@ class _HomeState extends State<Home> {
 
   final TextEditingController _tituloController = TextEditingController();
   final TextEditingController _descricaoController = TextEditingController();
+  final _db = AnotacaoHelper();
 
   _exibirTelaCadastro() {
 
@@ -47,7 +50,7 @@ class _HomeState extends State<Home> {
             TextButton(
               onPressed: () {
 
-                //Salvar
+                _salvarAnotacao();
 
                 Navigator.pop(context);
               }, 
@@ -57,6 +60,18 @@ class _HomeState extends State<Home> {
         );
       }
     );
+
+  }
+
+  _salvarAnotacao() async {
+
+    String titulo = _tituloController.text;
+    String descricao = _descricaoController.text;
+
+    //debugPrint("Data atual: ${DateTime.now().toString()}");
+    Anotacao anotacao = Anotacao(titulo, descricao, DateTime.now().toString());
+    int? resultado = await _db.salvarAnotacao(anotacao);
+    debugPrint("Anotações salvas: ${resultado.toString()}");
 
   }
 
