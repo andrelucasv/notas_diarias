@@ -14,6 +14,7 @@ class _HomeState extends State<Home> {
   final TextEditingController _tituloController = TextEditingController();
   final TextEditingController _descricaoController = TextEditingController();
   final _db = AnotacaoHelper();
+  List<Anotacao>? _anotacoes = [];
 
   _exibirTelaCadastro() {
 
@@ -63,6 +64,27 @@ class _HomeState extends State<Home> {
 
   }
 
+  _recuperarAnotacoes() async {
+
+    List anotacoesRecuperadas = await _db.recuperarAnotacoes();
+    
+    List<Anotacao>? listaTemporaria = [];
+    for (var item in anotacoesRecuperadas) {
+      
+      Anotacao anotacao = Anotacao.fromMap(item);
+      listaTemporaria.add(anotacao);
+
+    }
+
+    setState(() {
+      _anotacoes = listaTemporaria;
+    });
+    listaTemporaria = null;
+
+    //debugPrint("Lista de anotações: ${anotacoesRecuperadas.toString()}");
+
+  }
+
   _salvarAnotacao() async {
 
     String titulo = _tituloController.text;
@@ -73,6 +95,17 @@ class _HomeState extends State<Home> {
     int? resultado = await _db.salvarAnotacao(anotacao);
     debugPrint("Anotações salvas: ${resultado.toString()}");
 
+    _tituloController.clear();
+    _descricaoController.clear();
+
+    _recuperarAnotacoes();
+
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _recuperarAnotacoes();
   }
 
   @override
@@ -82,7 +115,27 @@ class _HomeState extends State<Home> {
         title: const Text("Minhas anotações"),
         backgroundColor: Colors.green,
       ),
-      body: Container(),
+      body: Column(
+        children: [
+          Expanded(
+            child: ListView.builder(
+              itemBuilder: (context, index) {
+                
+                final anotacao = _anotacoes?[index];
+
+                return Card(
+                  child: ListTile(
+                    title: Text("${anotacao?.titulo}"),
+                    subtitle: Text("${anotacao?.data} - ${anotacao?.descricao}"),
+                  ),
+                );
+
+              },
+              itemCount: _anotacoes?.length,
+            )
+          )
+        ],
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           _exibirTelaCadastro();
