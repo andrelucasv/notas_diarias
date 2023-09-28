@@ -42,7 +42,7 @@ class AnotacaoHelper {
 
   }
 
-  Future<int?> salvarAnotacao(Anotacao anotacao) async {
+  Future<int> salvarAnotacao(Anotacao anotacao) async {
 
     var bancoDados = await db;
     int resultado = await bancoDados.insert(nomeTabela, anotacao.toMap());
@@ -59,4 +59,16 @@ class AnotacaoHelper {
 
   }
 
+  Future<int> atualizarAnotacao(Anotacao anotacao) async {
+    
+    var bancoDados = await db;
+    return await bancoDados.update(
+      nomeTabela,
+      anotacao.toMap(),
+      where: "id = ?",
+      whereArgs: [anotacao.id]
+    );
+
+  }
+  
 }
